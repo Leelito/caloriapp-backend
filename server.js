@@ -6,7 +6,7 @@ app.use(cors());
 app.use(express.json({ limit: '20mb' }));
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
-const DAILY_LIMIT = 6;
+const DAILY_LIMIT = 10;
 
 // Debug log to verify API key is loaded
 console.log('API KEY loaded:', ANTHROPIC_API_KEY ? 'YES (' + ANTHROPIC_API_KEY.slice(0, 12) + '...)' : 'NOT FOUND');
