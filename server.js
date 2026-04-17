@@ -8,8 +8,10 @@ app.use(express.json({ limit: '20mb' }));
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const DAILY_LIMIT = 6;
 
+// Debug log to verify API key is loaded
+console.log('API KEY loaded:', ANTHROPIC_API_KEY ? 'YES (' + ANTHROPIC_API_KEY.slice(0, 12) + '...)' : 'NOT FOUND');
+
 // Simple in-memory store for daily usage
-// In production use Redis or a database
 const usage = {};
 
 function getTodayKey() {
@@ -80,6 +82,7 @@ app.post('/analyze', async (req, res) => {
     const data = await response.json();
 
     if (!response.ok) {
+      console.error('Anthropic error:', data.error?.message);
       return res.status(response.status).json({ error: data.error?.message || 'API error' });
     }
 
@@ -91,7 +94,7 @@ app.post('/analyze', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`CaloriApp backend running on port ${PORT}`);
 });
