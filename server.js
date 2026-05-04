@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: '20mb' }));
@@ -8,7 +7,6 @@ app.use(express.json({ limit: '20mb' }));
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const DAILY_LIMIT = 10;
 
-// Debug log to verify API key is loaded
 console.log('API KEY loaded:', ANTHROPIC_API_KEY ? 'YES (' + ANTHROPIC_API_KEY.slice(0, 12) + '...)' : 'NOT FOUND');
 
 // Simple in-memory store for daily usage
@@ -35,7 +33,6 @@ app.get('/', (req, res) => {
 app.post('/analyze', async (req, res) => {
   try {
     const { messages, userId } = req.body;
-
     if (!messages) {
       return res.status(400).json({ error: 'Missing messages' });
     }
@@ -70,7 +67,6 @@ app.post('/analyze', async (req, res) => {
           messages
         })
       });
-
       if (response.status === 529) {
         attempt++;
         await new Promise(r => setTimeout(r, 1500 * attempt));
@@ -80,12 +76,10 @@ app.post('/analyze', async (req, res) => {
     }
 
     const data = await response.json();
-
     if (!response.ok) {
       console.error('Anthropic error:', data.error?.message);
       return res.status(response.status).json({ error: data.error?.message || 'API error' });
     }
-
     res.json(data);
 
   } catch (err) {
@@ -94,18 +88,24 @@ app.post('/analyze', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 8080;
 // Dev code verification - code NEVER sent to client
 app.post('/verify-dev', (req, res) => {
   const { code } = req.body;
-  const DEV_CODE = process.env.DEV_CODE || 'Jcg12345';
-  if(code === DEV_CODE) {
+  const DEV_CODE = process.env.DEV_CODE;
+
+  // Si no hay DEV_CODE configurado en Railway, rechazar siempre
+  if (!DEV_CODE) {
+    return res.json({ valid: false });
+  }
+
+  if (code === DEV_CODE) {
     res.json({ valid: true });
   } else {
     res.json({ valid: false });
   }
 });
 
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`CaloriApp backend running on port ${PORT}`);
 });
