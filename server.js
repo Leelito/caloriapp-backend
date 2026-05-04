@@ -95,6 +95,17 @@ app.post('/analyze', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 8080;
+// Dev code verification - code NEVER sent to client
+app.post('/verify-dev', (req, res) => {
+  const { code } = req.body;
+  const DEV_CODE = process.env.DEV_CODE || 'Jcg12345';
+  if(code === DEV_CODE) {
+    res.json({ valid: true });
+  } else {
+    res.json({ valid: false });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`CaloriApp backend running on port ${PORT}`);
 });
