@@ -9,7 +9,6 @@ const DAILY_LIMIT = 15;
 
 console.log('API KEY loaded:', ANTHROPIC_API_KEY ? 'YES (' + ANTHROPIC_API_KEY.slice(0, 12) + '...)' : 'NOT FOUND');
 
-// Simple in-memory store for daily usage
 const usage = {};
 
 function getTodayKey() {
@@ -24,12 +23,10 @@ function getUserUsage(userId) {
   return usage[userId];
 }
 
-// Health check
 app.get('/', (req, res) => {
   res.json({ status: 'CaloriApp backend running 🥗' });
 });
 
-// Analyze endpoint
 app.post('/analyze', async (req, res) => {
   try {
     const { messages, userId } = req.body;
@@ -37,7 +34,6 @@ app.post('/analyze', async (req, res) => {
       return res.status(400).json({ error: 'Missing messages' });
     }
 
-    // Check daily limit (skip for dev users)
     if (userId && !userId.startsWith('dev-')) {
       const userUsage = getUserUsage(userId);
       if (userUsage.count >= DAILY_LIMIT) {
@@ -50,7 +46,6 @@ app.post('/analyze', async (req, res) => {
       userUsage.count++;
     }
 
-    // Call Anthropic
     let attempt = 0;
     let response;
     while (attempt < 3) {
@@ -88,12 +83,10 @@ app.post('/analyze', async (req, res) => {
   }
 });
 
-// Dev code verification - code NEVER sent to client
 app.post('/verify-dev', (req, res) => {
   const { code } = req.body;
   const DEV_CODE = process.env.DEV_CODE;
 
-  // Si no hay DEV_CODE configurado en Railway, rechazar siempre
   if (!DEV_CODE) {
     return res.json({ valid: false });
   }
